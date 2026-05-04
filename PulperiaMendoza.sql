@@ -2,28 +2,22 @@ USE PulperiaMendoza;
 GO
 
 CREATE TABLE Usuarios (
-    IDUsuario INT PRIMARY KEY IDENTITY(1,1),
-    Usuario NVARCHAR(50) UNIQUE NOT NULL,
-    PasswordHash NVARCHAR(255) NOT NULL,
-    Rol NVARCHAR(20) NOT NULL,
-    Activo BIT DEFAULT 1,
-    CONSTRAINT CHK_Rol CHECK (Rol IN ('Administrador', 'Trabajador', 'Tecnico'))
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Usuario VARCHAR(50) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(255) NOT NULL,
+    Rol VARCHAR(20) NOT NULL
 );
+GO
 
 CREATE TABLE Clientes (
-    IDClientes INT PRIMARY KEY IDENTITY(1,1),
-    NombreCliente VARCHAR(255) NOT NULL, 
-    ApellidoCliente VARCHAR(255) NOT NULL
+    IDClientes INT IDENTITY(1,1) PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Telefono VARCHAR(20),
+    Direccion VARCHAR(255),
+    IdUsuario INT,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(Id)
 );
-
-CREATE TABLE ClienteLogin (
-    IDClienteLogin INT PRIMARY KEY IDENTITY(1,1),
-    IDClientes INT UNIQUE,
-    Usuario NVARCHAR(50) UNIQUE NOT NULL,
-    PasswordHash NVARCHAR(255) NOT NULL,
-    Activo BIT DEFAULT 1,
-    FOREIGN KEY (IDClientes) REFERENCES Clientes(IDClientes)
-);
+GO
 
 CREATE TABLE Productos (
     IDProductos INT PRIMARY KEY IDENTITY(1,1),
@@ -36,12 +30,14 @@ CREATE TABLE Productos (
     FactorConversion DECIMAL(10,2),
     Stock INT DEFAULT 0
 );
+GO
 
 CREATE TABLE Proveedores (
     IDProveedores INT PRIMARY KEY IDENTITY(1,1),
     NombreProveedores VARCHAR(255) NOT NULL,
     TipoProveedores VARCHAR(255)
 );
+GO
 
 CREATE TABLE Productos_Proveedores (
     IDProducto_Proveedor INT PRIMARY KEY IDENTITY(1,1),
@@ -50,6 +46,7 @@ CREATE TABLE Productos_Proveedores (
     FOREIGN KEY (IDProductos) REFERENCES Productos(IDProductos),
     FOREIGN KEY (IDProveedores) REFERENCES Proveedores(IDProveedores)
 );
+GO
 
 CREATE TABLE Factura (
     IDFactura INT PRIMARY KEY IDENTITY(1,1),
@@ -58,10 +55,13 @@ CREATE TABLE Factura (
     TipoPago VARCHAR(20) NOT NULL,
     Total DECIMAL(10,2),
     Fecha DATETIME DEFAULT GETDATE(),
+
     FOREIGN KEY (IDClientes) REFERENCES Clientes(IDClientes),
-    FOREIGN KEY (IDUsuario) REFERENCES Usuarios(IDUsuario),
+    FOREIGN KEY (IDUsuario) REFERENCES Usuarios(Id),
+
     CONSTRAINT CHK_TipoPago CHECK (TipoPago IN ('Efectivo', 'Credito'))
 );
+GO
 
 CREATE TABLE DetalleFactura (
     IDDetalle INT PRIMARY KEY IDENTITY(1,1),
@@ -69,15 +69,18 @@ CREATE TABLE DetalleFactura (
     IDProductos INT,
     Cantidad INT,
     Precio DECIMAL(10,2),
+
     FOREIGN KEY (IDFactura) REFERENCES Factura(IDFactura),
     FOREIGN KEY (IDProductos) REFERENCES Productos(IDProductos)
 );
+GO
 
 CREATE TABLE Servicios (
     IDServicio INT PRIMARY KEY IDENTITY(1,1),
     NombreServicio VARCHAR(255),
     Precio DECIMAL(10,2)
 );
+GO
 
 CREATE TABLE OrdenServicio (
     IDOrden INT PRIMARY KEY IDENTITY(1,1),
@@ -87,9 +90,11 @@ CREATE TABLE OrdenServicio (
     Solucion VARCHAR(255),
     Total DECIMAL(10,2),
     Fecha DATETIME DEFAULT GETDATE(),
+
     FOREIGN KEY (IDClientes) REFERENCES Clientes(IDClientes),
-    FOREIGN KEY (IDUsuario) REFERENCES Usuarios(IDUsuario)
+    FOREIGN KEY (IDUsuario) REFERENCES Usuarios(Id)
 );
+GO
 
 CREATE TABLE DetalleServicio (
     IDDetalleServicio INT PRIMARY KEY IDENTITY(1,1),
@@ -97,15 +102,17 @@ CREATE TABLE DetalleServicio (
     IDServicio INT,
     Cantidad INT,
     Precio DECIMAL(10,2),
+
     FOREIGN KEY (IDOrden) REFERENCES OrdenServicio(IDOrden),
     FOREIGN KEY (IDServicio) REFERENCES Servicios(IDServicio)
 );
+GO
 
 CREATE INDEX IDX_Usuarios_Usuario ON Usuarios(Usuario);
-CREATE INDEX IDX_Clientes_Nombre ON Clientes(NombreCliente);
+CREATE INDEX IDX_Clientes_Nombre ON Clientes(Nombre);
 CREATE INDEX IDX_Productos_Nombre ON Productos(NombreProducto);
-
 GO
+
 CREATE TRIGGER TR_ValidarStock
 ON DetalleFactura
 INSTEAD OF INSERT
@@ -159,14 +166,14 @@ GO
 CREATE VIEW VistaVentas AS
 SELECT 
     f.IDFactura,
-    c.NombreCliente,
+    c.Nombre,
     u.Usuario,
     f.TipoPago,
     f.Total,
     f.Fecha
 FROM Factura f
 JOIN Clientes c ON f.IDClientes = c.IDClientes
-JOIN Usuarios u ON f.IDUsuario = u.IDUsuario;
+JOIN Usuarios u ON f.IDUsuario = u.Id;
 GO
 
 INSERT INTO Productos (NombreProducto, TipoProducto, PrecioCompra, PrecioVenta, UnidadCompra, UnidadVenta, FactorConversion, Stock)
