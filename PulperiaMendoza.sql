@@ -178,14 +178,17 @@ JOIN Clientes c ON f.IDClientes = c.IDClientes
 JOIN Usuarios u ON f.IDUsuario = u.Id;
 GO
 
-INSERT INTO Productos (NombreProducto, TipoProducto, PrecioCompra, PrecioVenta, UnidadCompra, UnidadVenta, FactorConversion, Stock)
-VALUES 
-('Arroz Maria', 'Grano', 1650, 18, 'Quintal', 'Libra', 100, 200),
-('Aceite (Balde 20L)', 'Liquido', 560, 70, 'Balde', 'Litro', 20, 40),
-('Arroz Faizan', 'Grano', 2000, 26, 'Quintal', 'Libra', 100, 100),
-('Frijoles Crudos', 'Grano', 2550, 35, 'Quintal', 'Libra', 100, 300),
-('Cafe Presto Caja', 'Cafe', 150, 4, 'Caja', 'Unidad', 60, 300),
-('Leche Eskimo 1/2L', 'Lacteo', 15.5, 24, 'Unidad', 'Unidad', 1, 40);
+USE PulperiaMendoza;
+GO
+
+INSERT INTO Productos (NombreProducto, TipoProducto, PrecioCompra, PrecioVenta, UnidadCompra, UnidadVenta, FactorConversion, Stock, Imagen, Descripcion)
+VALUES ('Arroz Maria', 'Grano', 1650, 18, 'Quintal', 'Libra', 100, 200, '/Imagenes/pulperiaimagenes/arrozmaria.jpg', 'Arroz de consumo básico, vendido por libra. Ideal para comidas diarias.'),
+	   ( 'Aceite (Balde 20L)', 'Liquido', 560, 70, 'Balde', 'Litro', 20, 40, '/Imagenes/pulperiaimagenes/aceite.jpg', 'Aceite vegetal vendido por litro, ideal para cocina diaria.'),
+	   ( 'Arroz Faizan', 'Grano', 2000, 26, 'Quintal', 'Libra', 100, 100, '/Imagenes/pulperiaimagenes/arrozfaisan.webp', 'Arroz premium de excelente calidad, ideal para familias.'),
+	   ( 'Frijoles Crudos', 'Grano', 2550, 35, 'Quintal', 'Libra', 100, 300, '/Imagenes/pulperiaimagenes/frijoles.png', 'Frijoles rojos seleccionados, esenciales en la cocina nicaragüense.'),
+	   ( 'Cafe Presto Caja', 'Cafe', 150, 4, 'Caja', 'Unidad', 60, 300, '/Imagenes/pulperiaimagenes/cafepresto.jpg', 'Café instantáneo práctico y económico para el día a día.'),
+	   ( 'Leche Eskimo 1/2L', 'Lacteo', 15.5, 24, 'Unidad', 'Unidad', 1, 40, '/Imagenes/pulperiaimagenes/lecheeskimo.jpg', 'Leche líquida de medio litro, ideal para consumo familiar.');
+GO
 
 INSERT INTO Proveedores (NombreProveedores, TipoProveedores)
 VALUES
