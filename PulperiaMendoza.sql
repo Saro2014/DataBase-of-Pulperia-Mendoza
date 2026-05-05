@@ -28,6 +28,8 @@ CREATE TABLE Productos (
     UnidadCompra VARCHAR(20),
     UnidadVenta VARCHAR(20),
     FactorConversion DECIMAL(10,2),
+	Imagen VARCHAR(255),
+    Descripcion VARCHAR(500),
     Stock INT DEFAULT 0
 );
 GO
@@ -230,3 +232,14 @@ SELECT
 FROM Productos p
 JOIN Productos_Proveedores pp ON p.IDProductos = pp.IDProductos
 JOIN Proveedores pr ON pp.IDProveedores = pr.IDProveedores;
+
+INSERT INTO Usuarios (Usuario, PasswordHash, Rol)
+VALUES 
+('admin', '123', 'Admin'),
+('cliente1', '123', 'Cliente');
+
+INSERT INTO Clientes (Nombre, Telefono, Direccion, IdUsuario)
+VALUES 
+('Cliente Prueba', '8888-8888', 'Managua', 2);
+SELECT * FROM Usuarios;
+SELECT * FROM Clientes;
