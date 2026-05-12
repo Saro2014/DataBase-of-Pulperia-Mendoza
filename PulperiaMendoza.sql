@@ -1,21 +1,10 @@
 USE PulperiaMendoza;
 GO
 
-CREATE TABLE Usuarios (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    Usuario VARCHAR(50) NOT NULL UNIQUE,
-    PasswordHash VARCHAR(255) NOT NULL,
-    Rol VARCHAR(20) NOT NULL
-);
-GO
-
 CREATE TABLE Clientes (
     IDClientes INT IDENTITY(1,1) PRIMARY KEY,
     Nombre VARCHAR(100),
     Telefono VARCHAR(20),
-    Direccion VARCHAR(255),
-    IdUsuario INT,
-    FOREIGN KEY (IdUsuario) REFERENCES Usuarios(Id)
 );
 GO
 
@@ -31,9 +20,9 @@ CREATE TABLE Productos (
 	Imagen VARCHAR(255),
     Descripcion VARCHAR(500),
 	destacados BIT DEFAULT 0,
-    Stock INT DEFAULT 0
+    Stock INT DEFAULT 0,
+	Activo BIT DEFAULT 1
 );
-GO
 
 CREATE TABLE Proveedores (
     IDProveedores INT PRIMARY KEY IDENTITY(1,1),
@@ -53,14 +42,12 @@ GO
 
 CREATE TABLE Factura (
     IDFactura INT PRIMARY KEY IDENTITY(1,1),
-    IDClientes INT,
-    IDUsuario INT,
+    IDClientes INT NOT NULL,
     TipoPago VARCHAR(20) NOT NULL,
-    Total DECIMAL(10,2),
+    Total DECIMAL(10,2) DEFAULT 0,
     Fecha DATETIME DEFAULT GETDATE(),
 
     FOREIGN KEY (IDClientes) REFERENCES Clientes(IDClientes),
-    FOREIGN KEY (IDUsuario) REFERENCES Usuarios(Id),
 
     CONSTRAINT CHK_TipoPago CHECK (TipoPago IN ('Efectivo', 'Credito'))
 );
@@ -68,17 +55,17 @@ GO
 
 CREATE TABLE DetalleFactura (
     IDDetalle INT PRIMARY KEY IDENTITY(1,1),
-    IDFactura INT,
-    IDProductos INT,
-    Cantidad INT,
-    Precio DECIMAL(10,2),
+    IDFactura INT NOT NULL,
+    IDProductos INT NOT NULL,
+    Cantidad INT NOT NULL,
+    Precio DECIMAL(10,2) NOT NULL,
 
     FOREIGN KEY (IDFactura) REFERENCES Factura(IDFactura),
     FOREIGN KEY (IDProductos) REFERENCES Productos(IDProductos)
 );
 GO
 
-CREATE TABLE Servicios (
+/*CREATE TABLE Servicios (
     IDServicio INT PRIMARY KEY IDENTITY(1,1),
     NombreServicio VARCHAR(255),
     Precio DECIMAL(10,2)
@@ -88,35 +75,30 @@ GO
 CREATE TABLE OrdenServicio (
     IDOrden INT PRIMARY KEY IDENTITY(1,1),
     IDClientes INT,
-    IDUsuario INT,
     Problema VARCHAR(255),
     Solucion VARCHAR(255),
     Total DECIMAL(10,2),
     Fecha DATETIME DEFAULT GETDATE(),
 
     FOREIGN KEY (IDClientes) REFERENCES Clientes(IDClientes),
-    FOREIGN KEY (IDUsuario) REFERENCES Usuarios(Id)
 );
 GO
 
 CREATE TABLE DetalleServicio (
     IDDetalleServicio INT PRIMARY KEY IDENTITY(1,1),
     IDOrden INT,
-    IDServicio INT,
     Cantidad INT,
     Precio DECIMAL(10,2),
 
     FOREIGN KEY (IDOrden) REFERENCES OrdenServicio(IDOrden),
-    FOREIGN KEY (IDServicio) REFERENCES Servicios(IDServicio)
 );
-GO
+GO*/
 
-CREATE INDEX IDX_Usuarios_Usuario ON Usuarios(Usuario);
 CREATE INDEX IDX_Clientes_Nombre ON Clientes(Nombre);
 CREATE INDEX IDX_Productos_Nombre ON Productos(NombreProducto);
 GO
 
-CREATE TRIGGER TR_ValidarStock
+/*CREATE TRIGGER TR_ValidarStock
 ON DetalleFactura
 INSTEAD OF INSERT
 AS
@@ -164,25 +146,24 @@ BEGIN
     FROM Factura f
     JOIN inserted i ON f.IDFactura = i.IDFactura
 END;
-GO
+GO*/
 
 CREATE VIEW VistaVentas AS
 SELECT 
     f.IDFactura,
     c.Nombre,
-    u.Usuario,
+    c.Telefono,
     f.TipoPago,
     f.Total,
     f.Fecha
 FROM Factura f
-JOIN Clientes c ON f.IDClientes = c.IDClientes
-JOIN Usuarios u ON f.IDUsuario = u.Id;
+JOIN Clientes c ON f.IDClientes = c.IDClientes;
 GO
 
 USE PulperiaMendoza;
 GO
 
-INSERT INTO Productos (NombreProducto, TipoProducto, PrecioCompra, PrecioVenta, UnidadCompra, UnidadVenta, FactorConversion, Stock, Imagen, Descripcion, destacado)
+INSERT INTO Productos (NombreProducto, TipoProducto, PrecioCompra, PrecioVenta, UnidadCompra, UnidadVenta, FactorConversion, Stock, Imagen, Descripcion, destacados)
 VALUES ('Arroz Maria', 'Grano', 1650, 18, 'Quintal', 'Libra', 100, 200, '/Imagenes/pulperiaimagenes/arrozmaria.jpg', 'Arroz de consumo básico, vendido por libra. Ideal para comidas diarias.', 1),
 	   ( 'Aceite (Balde 20L)', 'Liquido', 560, 70, 'Balde', 'Litro', 20, 40, '/Imagenes/pulperiaimagenes/aceite.jpg', 'Aceite vegetal vendido por litro, ideal para cocina diaria.', 1),
 	   ( 'Arroz Faizan', 'Grano', 2000, 26, 'Quintal', 'Libra', 100, 100, '/Imagenes/pulperiaimagenes/arrozfaisan.webp', 'Arroz premium de excelente calidad, ideal para familias.', 0),
@@ -237,13 +218,10 @@ FROM Productos p
 JOIN Productos_Proveedores pp ON p.IDProductos = pp.IDProductos
 JOIN Proveedores pr ON pp.IDProveedores = pr.IDProveedores;
 
-INSERT INTO Usuarios (Usuario, PasswordHash, Rol)
-VALUES 
-('admin', '123', 'Admin'),
-('cliente1', '123', 'Cliente');
 
-INSERT INTO Clientes (Nombre, Telefono, Direccion, IdUsuario)
+INSERT INTO Clientes (Nombre, Telefono)
 VALUES 
-('Cliente Prueba', '8888-8888', 'Managua', 2);
-SELECT * FROM Usuarios;
+('Cliente Prueba', '8888-8888');
 SELECT * FROM Clientes;
+
+select * from Productos
